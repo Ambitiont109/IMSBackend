@@ -9,5 +9,6 @@ router = DefaultRouter()
 
 
 urlpatterns = [
-    path('user/', include('UserApp.urls'))
+    path('user/', include('UserApp.urls')),
+    path('child/', include('ChildApp.urls'))
 ]

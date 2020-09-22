@@ -12,5 +12,5 @@ class User(AbstractUser):
         (Admin, 'Admin')
     ]
     role = models.CharField(max_length=10, choices=USER_ROLE, default=Parent)
-    picture = models.ImageField(upload_to="upload/photo")
+    picture = models.ImageField(upload_to="upload/photo", null=True, blank=True)
     classnames = models.CharField(null=True, blank=True, max_length=255)
