@@ -62,11 +62,11 @@ class Child(models.Model):
     health_issue = models.TextField(blank=True)
 
 
-# class Picture(models.Model):
-#     receiver = models.ForeignKey(Child, on_delete=models.CASCADE)
-#     image = models.ImageField(upload_to='upload/images')
-#     created_at = models.DateTimeField(auto_now_add=True)
-#     updated_at = models.DateTimeField(auto_now=True)
+class Picture(models.Model):
+    receiver = models.ForeignKey(Child, on_delete=models.CASCADE)
+    image = models.ImageField(upload_to='upload/pictures')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
 
 # class MenuItem(models.Model):

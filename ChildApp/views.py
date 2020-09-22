@@ -1,11 +1,13 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, status
 from .models import Child, SiblingGroup
-from .serializers import ChildSerializer
+from .serializers import ChildSerializer, PictureSerializer
 from rest_framework import permissions
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes, action
 from django.db.models import Q
+from django.http import QueryDict
+
 import json
 from anam_backend_main.constants import Parent, Teacher, Admin, \
                                         Bamboo, Iroko, Baobab, Acajou
@@ -46,6 +48,16 @@ class ChildViewSet(viewsets.ModelViewSet):
         child.save()
         return Response(sibling_group.pk)
 
+    @action(detail=True, methods=['post'])
+    def upload_picture(self, request, pk=None):
+        child = self.get_object()
+        print(request.data)
+
+        serializer = PictureSerializer(data=request.data)
+        if serializer.is_valid():
+            picture = serializer.save(receiver=child)
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['POST'])
