@@ -15,7 +15,6 @@ class Contact(models.Model):
     child = models.ForeignKey('Child', on_delete=models.CASCADE, related_name="emergenyContacts")
 
 
-
 class AuthPerson(models.Model):
     first_name = models.CharField(max_length=255, blank=True)
     last_name = models.CharField(max_length=255, blank=True)

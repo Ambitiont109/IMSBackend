@@ -10,5 +10,5 @@ router.register('', views.ChildViewSet, basename='child')
 
 urlpatterns = [
     path('', include(router.urls)),
-
+    path('sibling/<int:pk>/add/', views.add_child_to_sibling_group)
 ]

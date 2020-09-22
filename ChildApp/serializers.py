@@ -3,8 +3,8 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.hashers import make_password
-
 from .models import Child, AuthPerson, Contact
+from UserApp.serializers import UserSerializer
 import json
 
 
@@ -33,7 +33,7 @@ class ChildSerializer(serializers.ModelSerializer):
     siblings = serializers.SerializerMethodField()
     authPersons = AuthPersonSerializer(many=True)
     emergenyContacts = EmergencyContactSerializer(many=True)
-
+    parent = UserSerializer()
     class Meta:
         model = Child
         fields = '__all__'
@@ -41,7 +41,7 @@ class ChildSerializer(serializers.ModelSerializer):
     def get_siblings(self, obj):
 
         try:
-            return SibilngChildSerializer(obj.sibling_group.childs, many=True, context=self.context).data
+            return SibilngChildSerializer(obj.sibling_group.childs.exclude(id=obj.id), many=True, context=self.context).data
         except Exception as e:
             return []
     # def create(self, validated_data):
