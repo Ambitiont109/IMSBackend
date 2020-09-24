@@ -5,8 +5,7 @@ from . import views
 app_name = 'API'
 
 router = DefaultRouter()
-router.register(r'schooldocuments', views.SchoolDocumentReadViewSet, basename='schooldocuments')
-router.register(r'schooldocuments', views.SchoolDocumentDestroyViewSet, basename='schooldocuments')
+router.register(r'schooldocuments', views.SchoolDocumentViewSet, basename='schooldocuments')
 
 urlpatterns = [
     path('', include(router.urls)),

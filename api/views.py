@@ -5,8 +5,9 @@ from .serializers import UploadSerializer, SchoolDocumentUploadSerializer, Schoo
 import datetime
 from rest_framework.response import Response
 from anam_backend_main import mypermissions
-from anam_backend_main.constants import Classroom, All
+from anam_backend_main.constants import Classroom, All, Admin
 from .models import SchoolDocument
+
 # Create your views here.
 
 
@@ -42,13 +43,12 @@ def uploadSchoolDocument(request, documentFor=All):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class SchoolDocumentReadViewSet(viewsets.ReadOnlyModelViewSet):
+class SchoolDocumentViewSet(viewsets.ReadOnlyModelViewSet, mixins.DestroyModelMixin):
     queryset = SchoolDocument.objects.all()
     serializer_class = SchoolDocumentSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
-
-class SchoolDocumentDestroyViewSet(mixins.DestroyModelMixin,
-                                viewsets.GenericViewSet):
-    queryset = SchoolDocument.objects.all()
-    permission_classes = (permissions.IsAuthenticated, mypermissions.IsAdminRole)
+    def destory(self, request, *args, **kwargs):
+        if request.user.role != Admin:
+            return Response("You don't have enough permission", status=status.HTTP_400_BAD_REQUEST)
+        return super().destory(request, *args, **kwargs)

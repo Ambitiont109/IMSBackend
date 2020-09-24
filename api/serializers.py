@@ -17,5 +17,5 @@ class SchoolDocumentUploadSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SchoolDocument
-        fields = ['url', 'name', 'documentfor']
-        read_only_fields = ['name', 'documentfor']
+        fields = ['id', 'url', 'name', 'documentfor']
+        read_only_fields = ['name', 'documentfor', 'id']
