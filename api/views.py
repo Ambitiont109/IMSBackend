@@ -1,10 +1,12 @@
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework import permissions, status
+from rest_framework import permissions, status, viewsets, mixins
 from django.conf import settings
-from .serializers import UploadSerializer
+from .serializers import UploadSerializer, SchoolDocumentUploadSerializer, SchoolDocumentSerializer
 import datetime
 from rest_framework.response import Response
-
+from anam_backend_main import mypermissions
+from anam_backend_main.constants import Classroom, All
+from .models import SchoolDocument
 # Create your views here.
 
 
@@ -27,3 +29,26 @@ def write_uploaded_file(f):
         for chunk in f.chunks():
             destination.write(chunk)
     return f"{settings.MEDIA_URL}pictures/{datestr}{f.name}"
+
+
+@api_view(['POST'])
+@permission_classes((permissions.IsAuthenticated, mypermissions.IsAdminRole))
+def uploadSchoolDocument(request, documentFor=All):
+    serializer = SchoolDocumentUploadSerializer(data=request.data)
+    if serializer.is_valid():
+        f = request.FILES['url']
+        serializer.save(name=f.name, documentfor=documentFor)
+        return Response(serializer.data)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class SchoolDocumentReadViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = SchoolDocument.objects.all()
+    serializer_class = SchoolDocumentSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+
+class SchoolDocumentDestroyViewSet(mixins.DestroyModelMixin,
+                                viewsets.GenericViewSet):
+    queryset = SchoolDocument.objects.all()
+    permission_classes = (permissions.IsAuthenticated, mypermissions.IsAdminRole)

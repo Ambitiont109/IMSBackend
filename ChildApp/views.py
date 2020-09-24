@@ -55,9 +55,16 @@ class ChildViewSet(viewsets.ModelViewSet):
 
         serializer = PictureSerializer(data=request.data)
         if serializer.is_valid():
-            picture = serializer.save(receiver=child)
+            serializer.save(receiver=child)
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=True)
+    def pictures(self, request, pk=None):
+        child = self.get_object()
+        child_serializer = ChildSerializer(child, context=self.get_serializer_context())
+        serializer = PictureSerializer(child.pictures, many=True, context=self.get_serializer_context())
+        return Response({'child': child_serializer.data, 'pictures': serializer.data})
 
 
 @api_view(['POST'])

@@ -63,7 +63,7 @@ class Child(models.Model):
 
 
 class Picture(models.Model):
-    receiver = models.ForeignKey(Child, on_delete=models.CASCADE)
+    receiver = models.ForeignKey(Child, on_delete=models.CASCADE, related_name="pictures")
     image = models.ImageField(upload_to='upload/pictures')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

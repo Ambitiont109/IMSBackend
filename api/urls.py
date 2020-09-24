@@ -5,11 +5,13 @@ from . import views
 app_name = 'API'
 
 router = DefaultRouter()
-# router.register(r'students', views.StudentViewSet, basename='student')
-
+router.register(r'schooldocuments', views.SchoolDocumentReadViewSet, basename='schooldocuments')
+router.register(r'schooldocuments', views.SchoolDocumentDestroyViewSet, basename='schooldocuments')
 
 urlpatterns = [
+    path('', include(router.urls)),
     path('user/', include('UserApp.urls')),
     path('child/', include('ChildApp.urls')),
-    path('uploadpicture/', views.uploadPicture)
+    path('uploadpicture/', views.uploadPicture),
+    path('upload/document/<slug:documentFor>/', views.uploadSchoolDocument)
 ]

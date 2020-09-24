@@ -9,3 +9,6 @@ Iroko = 'Iroko'
 # kinder garten
 Baobab = 'Baobab'
 Acajou = 'Acajou'
+
+Classroom = 'Classroom'
+All = 'All'
