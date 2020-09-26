@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Child, AuthPerson, Contact, Picture
+from .models import Child, AuthPerson, Contact, Picture, Food, MenuItem
 from UserApp.serializers import UserSerializer
 
 
@@ -54,3 +54,25 @@ class PictureSerializer(serializers.ModelSerializer):
         model = Picture
         fields = '__all__'
         read_only_fields = ('receiver', )
+
+
+class FoodSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Food
+        fields = '__all__'
+
+
+class MenuItemSerializer(serializers.ModelSerializer):
+
+    foods = FoodSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = MenuItem
+        fields = '__all__'
+
+
+class AddFoodSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MenuItem
+        fields= '__all__'

@@ -1,6 +1,6 @@
 from django.db import models
 from anam_backend_main.constants import Parent, Teacher, Admin, \
-                                        Bamboo, Iroko, Baobab, Acajou
+                                        Bamboo, Iroko, Baobab, Acajou, Day
 # Create your models here.
 
 
@@ -69,10 +69,34 @@ class Picture(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
 
-# class MenuItem(models.Model):
-#     foodName = models.CharField()
-#     image = models.ImageField(upload_to='upload/food')
+class Food(models.Model):
+    picture = models.ImageField(upload_to='food')
+    name = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
 
+
+class MenuItem(models.Model):
+    weekChoices = (
+            (Day.Week1.value, 'Week 1'),
+            (Day.Week2.value, 'Week 2'),
+            (Day.Week3.value, 'Week 3'),
+            (Day.Week4.value, 'Week 4'),
+            (Day.Week5.value, 'Week 5'),
+            (Day.Week6.value, 'Week 6'),
+
+        )
+    dayNameChoices = (
+        (Day.Mon.value, 'Monday'),
+        (Day.Tue.value, 'Tuesday'),
+        (Day.Wed.value, 'Wednesday'),
+        (Day.Thr.value, 'Thrusday'),
+        (Day.Fri.value, 'Friday')
+    )
+    foods = models.ManyToManyField('Food')
+    weekName = models.CharField(max_length=255, choices=weekChoices)
+    dayName = models.CharField(max_length=255, choices=dayNameChoices)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
 # class Menu(models.Model):
 #     items = models.ManyToManyField(MenuItem)

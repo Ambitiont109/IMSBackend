@@ -1,14 +1,15 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, status
-from .models import Child, SiblingGroup
-from .serializers import ChildSerializer, PictureSerializer
 from rest_framework import permissions
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes, action
 from django.db.models import Q
 from django.http import QueryDict
-
 import json
+
+from anam_backend_main import mypermissions
+from .models import Child, SiblingGroup, Food, MenuItem
+from .serializers import ChildSerializer, PictureSerializer, FoodSerializer, MenuItemSerializer, AddFoodSerializer
 from anam_backend_main.constants import Parent, Teacher, Admin, \
                                         Bamboo, Iroko, Baobab, Acajou
 # Create your views here.
@@ -87,3 +88,72 @@ def add_child_to_sibling_group(request, pk):
             child.save()
         sibling_group.save()
     return Response('success')
+
+
+class FoodViewSet(viewsets.ModelViewSet):
+    queryset = Food.objects.all()
+    serializer_class = FoodSerializer
+    permission_classes = (permissions.IsAuthenticated, mypermissions.IsAdminRole)
+
+
+class MenuItemViewSet(viewsets.ModelViewSet):
+    queryset = MenuItem.objects.all()
+    serializer_class = MenuItemSerializer
+    permission_classes = (permissions.IsAuthenticated, mypermissions.IsAdminTeacherRole)
+    filterset_fields = ['weekName', 'dayName']
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        if 'weekName' in request.GET and 'dayName' in request.GET:
+            weekName = request.GET.get('weekName')
+            dayName = request.GET.get('dayName')
+            if not queryset.first():
+                menuItem = MenuItem(weekName=weekName, dayName=dayName)
+                menuItem.save()
+                serializer = self.get_serializer(menuItem)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['post'], url_path="AddFood")
+    def addFood(self, request):
+        serializer = AddFoodSerializer(data=request.data)
+        if serializer.is_valid():
+            weekName = serializer.validated_data.pop('weekName')
+            dayName = serializer.validated_data.pop('dayName')
+            queryset = self.get_queryset()
+            menuItem = queryset.filter(dayName=dayName, weekName=weekName).order_by('-created_at').first()
+            if not menuItem:
+                menuItem = MenuItem(weekName=weekName, dayName=dayName)
+                menuItem.save()
+
+            foods = serializer.validated_data.pop('foods')
+            menuItem.foods.add(*foods)
+            menuItem.save()
+            serializer = self.get_serializer(menuItem)
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=False, methods=['post'], url_path="removefoodfrommenu")
+    def removeFood(self, request):
+        serializer = AddFoodSerializer(data=request.data)
+        if serializer.is_valid():
+            weekName = serializer.validated_data.pop('weekName')
+            dayName = serializer.validated_data.pop('dayName')
+            queryset = self.get_queryset()
+            menuItem = queryset.filter(dayName=dayName, weekName=weekName).order_by('-created_at').first()
+            if not menuItem:
+                menuItem = MenuItem(weekName=weekName, dayName=dayName)
+                menuItem.save()
+
+            foods = serializer.validated_data.pop('foods')
+            menuItem.foods.remove(*foods)
+            menuItem.save()
+            serializer = self.get_serializer(menuItem)
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
