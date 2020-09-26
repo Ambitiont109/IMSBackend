@@ -11,6 +11,7 @@ urlpatterns = [
     path('', include(router.urls)),
     path('user/', include('UserApp.urls')),
     path('child/', include('ChildApp.urls')),
+    path('messages/', include('MessageApp.urls')),
     path('uploadpicture/', views.uploadPicture),
     path('upload/document/<slug:documentFor>/', views.uploadSchoolDocument)
 ]

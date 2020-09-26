@@ -44,9 +44,9 @@ INSTALLED_APPS = [
     'django_filters',
     'django_seed',
     'UserApp',
+    'MessageApp',
     'ChildApp',
     'api',
-    'commentapp'
 ]
 
 MIDDLEWARE = [

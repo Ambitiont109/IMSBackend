@@ -1,3 +1,4 @@
+import enum
 Parent = 'Parent'
 Teacher = 'Teacher'
 Admin = 'Admin'
@@ -12,3 +13,10 @@ Acajou = 'Acajou'
 
 Classroom = 'Classroom'
 All = 'All'
+
+#
+
+
+class MessageType(enum.Enum):
+    Normal = 'Noraml'
+    BroadCast = 'BroadCast'
