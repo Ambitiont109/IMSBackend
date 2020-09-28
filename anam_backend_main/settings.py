@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'UserApp',
     'MessageApp',
     'ChildApp',
+    'AppointmentCenter',
     'api',
 ]
 

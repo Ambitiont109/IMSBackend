@@ -31,7 +31,7 @@ class Child(models.Model):
         (Acajou, 'Acajou')
     ]
     photo = models.ImageField(upload_to='upload')
-    parent = models.OneToOneField('UserApp.User', on_delete=models.CASCADE)
+    parent = models.OneToOneField('UserApp.User', on_delete=models.CASCADE, related_name='child')
     sibling_group = models.ForeignKey('SiblingGroup', on_delete = models.CASCADE, related_name="childs")
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)

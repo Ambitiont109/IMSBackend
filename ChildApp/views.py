@@ -4,14 +4,11 @@ from rest_framework import permissions
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes, action
 from django.db.models import Q
-from django.http import QueryDict
 import json
-
 from anam_backend_main import mypermissions
 from .models import Child, SiblingGroup, Food, MenuItem
 from .serializers import ChildSerializer, PictureSerializer, FoodSerializer, MenuItemSerializer, AddFoodSerializer
-from anam_backend_main.constants import Parent, Teacher, Admin, \
-                                        Bamboo, Iroko, Baobab, Acajou
+from anam_backend_main.constants import Admin
 # Create your views here.
 
 

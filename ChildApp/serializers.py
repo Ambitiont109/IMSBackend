@@ -73,6 +73,7 @@ class MenuItemSerializer(serializers.ModelSerializer):
 
 
 class AddFoodSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = MenuItem
-        fields= '__all__'
+        fields = '__all__'
