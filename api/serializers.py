@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import SchoolDocument
+from .models import SchoolDocument, MiniClub, ExchangeLibrary
 
 
 class UploadSerializer(serializers.Serializer):
@@ -19,3 +19,17 @@ class SchoolDocumentUploadSerializer(serializers.ModelSerializer):
         model = SchoolDocument
         fields = ['id', 'url', 'name', 'documentfor']
         read_only_fields = ['name', 'documentfor', 'id']
+
+
+class MiniClubSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = MiniClub
+        fields = '__all__'
+
+
+class ExchangeLibrarySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ExchangeLibrary
+        fields = '__all__'

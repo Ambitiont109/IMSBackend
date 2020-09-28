@@ -6,8 +6,11 @@ app_name = 'API'
 
 router = DefaultRouter()
 router.register(r'schooldocuments', views.SchoolDocumentViewSet, basename='schooldocuments')
+router.register(r'miniclubs', views.MiniClubViewSet, basename='miniclubs')
+router.register(r'exchangelibraries', views.ExchangeLibraryViewSet, basename='miniclubs')
 router.register(r'foods', ChildAppViews.FoodViewSet, basename='foods'),
 router.register(r'menuitems', ChildAppViews.MenuItemViewSet, basename='menuitems')
+
 urlpatterns = [
     path('', include(router.urls)),
     path('user/', include('UserApp.urls')),

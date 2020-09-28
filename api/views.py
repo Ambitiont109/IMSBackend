@@ -1,12 +1,13 @@
+from django.conf import settings
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework import permissions, status, viewsets, mixins
-from django.conf import settings
-from .serializers import UploadSerializer, SchoolDocumentUploadSerializer, SchoolDocumentSerializer
-import datetime
 from rest_framework.response import Response
 from anam_backend_main import mypermissions
 from anam_backend_main.constants import Classroom, All, Admin
-from .models import SchoolDocument
+import datetime
+from .models import SchoolDocument, MiniClub, ExchangeLibrary
+from .serializers import UploadSerializer, SchoolDocumentUploadSerializer, SchoolDocumentSerializer,\
+                        MiniClubSerializer, ExchangeLibrarySerializer
 
 # Create your views here.
 
@@ -46,6 +47,28 @@ def uploadSchoolDocument(request, documentFor=All):
 class SchoolDocumentViewSet(viewsets.ReadOnlyModelViewSet, mixins.DestroyModelMixin):
     queryset = SchoolDocument.objects.all()
     serializer_class = SchoolDocumentSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def destory(self, request, *args, **kwargs):
+        if request.user.role != Admin:
+            return Response("You don't have enough permission", status=status.HTTP_400_BAD_REQUEST)
+        return super().destory(request, *args, **kwargs)
+
+
+class MiniClubViewSet(viewsets.ModelViewSet):
+    queryset = MiniClub.objects.all()
+    serializer_class = MiniClubSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def destory(self, request, *args, **kwargs):
+        if request.user.role != Admin:
+            return Response("You don't have enough permission", status=status.HTTP_400_BAD_REQUEST)
+        return super().destory(request, *args, **kwargs)
+
+
+class ExchangeLibraryViewSet(viewsets.ModelViewSet):
+    queryset = ExchangeLibrary.objects.all()
+    serializer_class = ExchangeLibrarySerializer
     permission_classes = (permissions.IsAuthenticated,)
 
     def destory(self, request, *args, **kwargs):
