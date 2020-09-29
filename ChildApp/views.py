@@ -6,8 +6,9 @@ from rest_framework.decorators import api_view, permission_classes, action
 from django.db.models import Q
 import json
 from anam_backend_main import mypermissions
-from .models import Child, SiblingGroup, Food, MenuItem
+from .models import Child, SiblingGroup, Food, MenuItem, ChildDailyInformation
 from .serializers import ChildSerializer, PictureSerializer, FoodSerializer, MenuItemSerializer, AddFoodSerializer
+from .serializers import ChildDailyInformationWriteSerializer, ChildDailyInformationReadSerializer
 from anam_backend_main.constants import Admin
 # Create your views here.
 
@@ -29,6 +30,7 @@ class ChildViewSet(viewsets.ModelViewSet):
                 print(clssnameList)
                 for classname in clssnameList:
                     query = query | Q(nameOfClass=classname)
+                print(query)
                 return Child.objects.filter(query)
             except Exception:
                 return Child.objects.none()
@@ -63,6 +65,15 @@ class ChildViewSet(viewsets.ModelViewSet):
         child_serializer = ChildSerializer(child, context=self.get_serializer_context())
         serializer = PictureSerializer(child.pictures, many=True, context=self.get_serializer_context())
         return Response({'child': child_serializer.data, 'pictures': serializer.data})
+
+    @action(detail=True, url_path="latest_dailyinfo")
+    def get_latest_dailyinformation(self, request, pk=None):
+        print(self.get_queryset().all())
+        child = self.get_object()
+        daily_info = ChildDailyInformation.objects.filter(child=child).order_by('-updated_at').first()
+        serializer = ChildDailyInformationReadSerializer(daily_info, context=self.get_serializer_context())
+        child_serializer = ChildSerializer(child, context=self.get_serializer_context())
+        return Response({'dailyInfo': serializer.data, 'child': child_serializer.data})
 
 
 @api_view(['POST'])
@@ -154,3 +165,15 @@ class MenuItemViewSet(viewsets.ModelViewSet):
             serializer = self.get_serializer(menuItem)
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ChildDailyInformationViewSet(viewsets.ModelViewSet):
+    queryset = ChildDailyInformation.objects.all()
+    serializer_class = ChildDailyInformationWriteSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_serializer_class(self):
+        if self.action == 'list' or self.action == 'retrieve':
+            return ChildDailyInformationReadSerializer
+        else:
+            return ChildDailyInformationWriteSerializer

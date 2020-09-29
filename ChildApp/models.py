@@ -32,7 +32,7 @@ class Child(models.Model):
     ]
     photo = models.ImageField(upload_to='upload')
     parent = models.OneToOneField('UserApp.User', on_delete=models.CASCADE, related_name='child')
-    # 
+    #
     sibling_group = models.ForeignKey('SiblingGroup', on_delete = models.CASCADE, related_name="childs")
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
@@ -99,34 +99,24 @@ class MenuItem(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-# class Menu(models.Model):
-#     items = models.ManyToManyField(MenuItem)
-#     week = models.IntegerField(default=1)
-#     day = models.IntegerField(default=1)
+
+class InjureRecord(models.Model):
+    place = models.CharField(max_length=255)
+    taken_time = models.DateTimeField()
+    comment = models.TextField(null=True, blank=True)
+    dailyinfo = models.ForeignKey('ChildDailyInformation', on_delete=models.CASCADE, related_name='injures')
 
 
-# class InjureRecord(models.Model):
-#     place = models.CharField()
-#     taken_time = models.DateTimeField()
-#     comment = models.TextField()
+class ChildDailyInformation(models.Model):
+    child = models.ForeignKey(Child, on_delete=models.CASCADE)
+    ate = models.IntegerField()
+    ate_comment = models.TextField(blank=True)
+    menu = models.ForeignKey(MenuItem, on_delete=models.SET_NULL, null=True)
+    comment = models.TextField(blank=True)
+    nap_start_time = models.DateTimeField()
+    nap_end_time = models.DateTimeField()
+    is_bowel_move = models.BooleanField(default=False)
+    bowel_movement_time = models.IntegerField()
 
-
-# class ChildDailyInformation(models.Model):
-#     child = models.ForeignKey(Child, on_delete=models.CASCADE)
-#     ate_comment1 = models.TextField(blank=True)
-#     ate_comment2 = models.TextField(blank=True)
-#     ate_comment3 = models.TextField(blank=True)
-#     ate_comment4 = models.TextField(blank=True)
-
-#     menu = models.ForeignKey(Menu, on_delete=models.CASCADE)
-#     comment = models.TextField(blank=True)
-
-#     nap_start_time = models.DateTimeField()
-#     nap_end_time = models.DateTimeField()
-
-#     is_bowel_move = models.BooleanField(default=False)
-#     bowel_movement_time = models.IntegerField()
-
-
-#     created_at = models.DateTimeField(auto_now_add=True)
-#     updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)

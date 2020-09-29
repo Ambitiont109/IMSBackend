@@ -9,6 +9,7 @@ router.register(r'schooldocuments', views.SchoolDocumentViewSet, basename='schoo
 router.register(r'miniclubs', views.MiniClubViewSet, basename='miniclubs')
 router.register(r'exchangelibraries', views.ExchangeLibraryViewSet, basename='miniclubs')
 router.register(r'foods', ChildAppViews.FoodViewSet, basename='foods'),
+router.register(r'dailyinformations', ChildAppViews.ChildDailyInformationViewSet, basename='dailyinformations'),
 router.register(r'menuitems', ChildAppViews.MenuItemViewSet, basename='menuitems')
 
 urlpatterns = [
