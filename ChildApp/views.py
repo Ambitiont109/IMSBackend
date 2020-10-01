@@ -9,7 +9,7 @@ from anam_backend_main import mypermissions
 from .models import Child, SiblingGroup, Food, MenuItem, ChildDailyInformation
 from .serializers import ChildSerializer, PictureSerializer, FoodSerializer, MenuItemSerializer, AddFoodSerializer
 from .serializers import ChildDailyInformationWriteSerializer, ChildDailyInformationReadSerializer
-from anam_backend_main.constants import Admin
+from anam_backend_main.constants import Admin, Parent, Teacher
 # Create your views here.
 
 
@@ -25,13 +25,15 @@ class ChildViewSet(viewsets.ModelViewSet):
         else:
             user = self.request.user
             try:
-                clssnameList = json.loads(user.classnames)
-                query = Q(nameOfClass=clssnameList[0])
-                print(clssnameList)
-                for classname in clssnameList:
-                    query = query | Q(nameOfClass=classname)
-                print(query)
-                return Child.objects.filter(query)
+                if user.role == Teacher:
+                    clssnameList = json.loads(user.classnames)
+                    query = Q(nameOfClass=clssnameList[0])
+                    for classname in clssnameList:
+                        query = query | Q(nameOfClass=classname)
+                    print(Child.objects.filter(query))
+                    return Child.objects.filter(query)
+                if user.role == Parent:
+                    return user.child.sibling_group.childs
             except Exception:
                 return Child.objects.none()
 
@@ -42,7 +44,7 @@ class ChildViewSet(viewsets.ModelViewSet):
         if not sibling_group:
             sibling_group = SiblingGroup()
             sibling_group.save()
-        sibling_group.numberOfSiblings += 1
+        sibling_group.numberOfSiblings -= 1
         sibling_group.save()
         child.sibling_group = sibling_group
         child.save()
@@ -68,12 +70,20 @@ class ChildViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, url_path="latest_dailyinfo")
     def get_latest_dailyinformation(self, request, pk=None):
-        print(self.get_queryset().all())
         child = self.get_object()
         daily_info = ChildDailyInformation.objects.filter(child=child).order_by('-updated_at').first()
         serializer = ChildDailyInformationReadSerializer(daily_info, context=self.get_serializer_context())
         child_serializer = ChildSerializer(child, context=self.get_serializer_context())
         return Response({'dailyInfo': serializer.data, 'child': child_serializer.data})
+
+    @action(detail=False, url_path="children")
+    def get_children_loggedin_user(self, request):
+        user = request.user
+        if user.role == Parent:
+            child = user.child
+            serializer = ChildSerializer(child.sibling_group.childs, many=True, context=self.get_serializer_context())
+            return Response(serializer.data)
+        return Response([])
 
 
 @api_view(['POST'])

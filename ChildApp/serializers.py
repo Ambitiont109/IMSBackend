@@ -1,6 +1,11 @@
 from rest_framework import serializers
-from .models import Child, AuthPerson, Contact, Picture, Food, MenuItem, InjureRecord, ChildDailyInformation
+from .models import Child, AuthPerson, Contact, Picture, Food, MenuItem, InjureRecord, ChildDailyInformation, SiblingGroup
+from drf_writable_nested.serializers import WritableNestedModelSerializer
+from UserApp.models import User
 from UserApp.serializers import UserSerializer
+from anam_backend_main.myserializerfields import Base64ImageField
+from anam_backend_main.constants import Parent
+from django_seed import Seed
 
 
 class SibilngChildSerializer(serializers.ModelSerializer):
@@ -11,10 +16,12 @@ class SibilngChildSerializer(serializers.ModelSerializer):
 
 
 class AuthPersonSerializer(serializers.ModelSerializer):
+    photo = Base64ImageField(required=False)
 
     class Meta:
         model = AuthPerson
         fields = '__all__'
+        read_only_fields = ('child',)
 
 
 class EmergencyContactSerializer(serializers.ModelSerializer):
@@ -22,17 +29,33 @@ class EmergencyContactSerializer(serializers.ModelSerializer):
     class Meta:
         model = Contact
         fields = '__all__'
+        read_only_fields = ('child',)
 
 
-class ChildSerializer(serializers.ModelSerializer):
-    siblings = serializers.SerializerMethodField()
+def generate_random_user():
+    seeder = Seed.seeder()
+    seeder.add_entity(User, 1)
+    ret = seeder.execute()
+    pk = ret[User][0]
+    user = User.objects.filter(pk=pk).first()
+    user.is_active = True
+    user.is_superuser = False
+    user.is_staff = False
+    user.set_password('password')
+    return user
+
+
+class ChildSerializer(WritableNestedModelSerializer):
+    siblings = serializers.SerializerMethodField(read_only=True)
     authPersons = AuthPersonSerializer(many=True)
-    emergenyContacts = EmergencyContactSerializer(many=True)
-    parent = UserSerializer()
+    emergencyContacts = EmergencyContactSerializer(many=True)
+    parent = UserSerializer(read_only=True)
+    photo = Base64ImageField(required=False)
 
     class Meta:
         model = Child
         fields = '__all__'
+        read_only_fields = ('sibling_group', )
 
     def get_siblings(self, obj):
 
@@ -40,12 +63,38 @@ class ChildSerializer(serializers.ModelSerializer):
             return SibilngChildSerializer(obj.sibling_group.childs.exclude(id=obj.id), many=True, context=self.context).data
         except Exception as e:
             return []
-    # def create(self, validated_data):
-    #     print(validated_data)
-    #     if 'password' in validated_data:
-    #         print(True)
-    #         validated_data['password'] = make_password(validated_data.get('password'))
-    #     return super(ChildSerializer, self).create(validated_data)
+
+    def create(self, validated_data):
+        injures_data = validated_data.pop('injures')
+        child_daily_info = ChildDailyInformation.objects.create(**validated_data)
+        for injure_data in injures_data:
+            InjureRecord.objects.create(dailyinfo=child_daily_info, **injure_data)
+        return child_daily_info
+
+
+    def create(self, validated_data):
+        user = self.context['request'].user
+        sibling_group = None
+        if user and user.child:
+            sibling_group = user.child.sibling_group
+        if not sibling_group:
+            sibling_group = SiblingGroup.objects.filter(numberOfSiblings=0).first()
+        if not sibling_group:
+            sibling_group = SiblingGroup.objects.create(numberOfSiblings=1)
+        parent = generate_random_user()
+
+
+        validated_data['sibling_group'] = sibling_group
+        validated_data['parent'] = parent
+        child = super(ChildSerializer, self).create(validated_data)
+
+        parent.role = Parent
+        parent.classnames = f'["{child.nameOfClass}"]'
+        parent.save()
+
+        child.sibling_group.numberOfSiblings += 1
+        child.sibling_group.save()
+        return child
 
 
 class PictureSerializer(serializers.ModelSerializer):
@@ -88,10 +137,8 @@ class InjureRecordSerializer(serializers.ModelSerializer):
 
 
 
-
 class ChildDailyInformationWriteSerializer(serializers.ModelSerializer):
     injures = InjureRecordSerializer(many=True)
-
 
     class Meta:
         model = ChildDailyInformation
@@ -105,7 +152,9 @@ class ChildDailyInformationWriteSerializer(serializers.ModelSerializer):
         return child_daily_info
 
     def update(self, instance, validated_data):
-        injures_data = validated_data.pop('injures')
+        injures_data = []
+        if 'injures' in validated_data:
+            injures_data = validated_data.pop('injures')
         injures = instance.injures.all()
         for index in range(0, len(injures)):
             if index < len(injures_data):

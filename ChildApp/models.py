@@ -9,17 +9,17 @@ class SiblingGroup(models.Model):
 
 
 class Contact(models.Model):
-    name = models.CharField(max_length=255, blank=True)
-    email = models.EmailField(blank=True)
-    phone_number = models.CharField(max_length=255, blank=True)
-    child = models.ForeignKey('Child', on_delete=models.CASCADE, related_name="emergenyContacts")
+    name = models.CharField(max_length=255, blank=True, null=True)
+    email = models.EmailField(blank=True, null=True)
+    phone_number = models.CharField(max_length=255, blank=True, null=True)
+    child = models.ForeignKey('Child', on_delete=models.CASCADE, related_name="emergencyContacts")
 
 
 class AuthPerson(models.Model):
-    first_name = models.CharField(max_length=255, blank=True)
-    last_name = models.CharField(max_length=255, blank=True)
-    photo = models.ImageField(blank=True, upload_to='upload/photo')
-    phone_number = models.CharField(max_length=255, blank=True)
+    first_name = models.CharField(max_length=255, blank=True, null=True)
+    last_name = models.CharField(max_length=255, blank=True, null=True)
+    photo = models.ImageField(blank=True, upload_to='upload/photo', null=True)
+    phone_number = models.CharField(max_length=255, blank=True, null=True)
     child = models.ForeignKey('Child', on_delete=models.CASCADE, related_name="authPersons")
 
 
@@ -59,7 +59,7 @@ class Child(models.Model):
 
     # Child Health Details
     allgeries = models.TextField(blank=True)
-    food_restirction = models.TextField(blank=True)
+    food_restriction = models.TextField(blank=True)
     health_issue = models.TextField(blank=True)
 
 
