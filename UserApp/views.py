@@ -1,10 +1,12 @@
 from django.shortcuts import render
+from django.db.models import Q
 from rest_framework import viewsets, mixins, status
 from UserApp.models import User
 from UserApp.serializers import UserSerializer, PasswordSerializer, PasswordSerializerTwo
 from rest_framework import permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from anam_backend_main.constants import Parent
 
 # Create your views here.
 
@@ -27,7 +29,7 @@ class UserViewSet(viewsets.ModelViewSet):
         serializer = PasswordSerializer(data=request.data)
         if serializer.is_valid():
             if not user.check_password(serializer.data['current_pwd']):
-                return Response({"current_pwd":['Current Password is Incorrect']}, status = status.HTTP_400_BAD_REQUEST)
+                return Response({"current_pwd": ['Current Password is Incorrect']}, status = status.HTTP_400_BAD_REQUEST)
             user.set_password(serializer.data['new_pwd'])
             user.save()
             return Response({'status': 'password set'})
@@ -46,3 +48,4 @@ class UserViewSet(viewsets.ModelViewSet):
         else:
             return Response(serializer.errors,
                             status=status.HTTP_400_BAD_REQUEST)
+

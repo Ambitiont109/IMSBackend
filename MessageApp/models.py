@@ -4,7 +4,7 @@ from anam_backend_main.constants import MessageType
 
 
 class AttachedFile(models.Model):
-    file = models.FileField('AttachedFiles', upload_to='attachedFiles')
+    file = models.FileField(upload_to='attachedFiles')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -21,7 +21,7 @@ class Message(models.Model):
     receiver = models.ForeignKey('UserApp.User', on_delete=models.CASCADE, related_name='+')
     content = models.TextField()
     msgType = models.CharField(max_length=255, choices=MessageTypeSelectChoice,
-                               default=MessageType.Normal)
+                               default=MessageType.Normal.value)
     headerMessage = models.ForeignKey('Message', on_delete=models.CASCADE, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
