@@ -1,6 +1,6 @@
 from django.db import models
 from anam_backend_main.constants import Parent, Teacher, Admin, \
-                                        Bamboo, Iroko, Baobab, Acajou, Day
+    Bamboo, Iroko, Baobab, Acajou, Day
 # Create your models here.
 
 
@@ -12,7 +12,8 @@ class Contact(models.Model):
     name = models.CharField(max_length=255, blank=True, null=True)
     email = models.EmailField(blank=True, null=True)
     phone_number = models.CharField(max_length=255, blank=True, null=True)
-    child = models.ForeignKey('Child', on_delete=models.CASCADE, related_name="emergencyContacts")
+    child = models.ForeignKey(
+        'Child', on_delete=models.CASCADE, related_name="emergencyContacts")
 
 
 class AuthPerson(models.Model):
@@ -20,7 +21,8 @@ class AuthPerson(models.Model):
     last_name = models.CharField(max_length=255, blank=True, null=True)
     photo = models.ImageField(blank=True, upload_to='upload/photo', null=True)
     phone_number = models.CharField(max_length=255, blank=True, null=True)
-    child = models.ForeignKey('Child', on_delete=models.CASCADE, related_name="authPersons")
+    child = models.ForeignKey(
+        'Child', on_delete=models.CASCADE, related_name="authPersons")
 
 
 class Child(models.Model):
@@ -31,9 +33,11 @@ class Child(models.Model):
         (Acajou, 'Acajou')
     ]
     photo = models.ImageField(upload_to='upload')
-    parent = models.OneToOneField('UserApp.User', on_delete=models.CASCADE, related_name='child')
+    parent = models.OneToOneField(
+        'UserApp.User', on_delete=models.CASCADE, related_name='child')
     #
-    sibling_group = models.ForeignKey('SiblingGroup', on_delete = models.CASCADE, related_name="childs")
+    sibling_group = models.ForeignKey(
+        'SiblingGroup', on_delete=models.CASCADE, related_name="childs")
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
     birth = models.DateField()
@@ -64,7 +68,8 @@ class Child(models.Model):
 
 
 class Picture(models.Model):
-    receiver = models.ForeignKey(Child, on_delete=models.CASCADE, related_name="pictures")
+    receiver = models.ForeignKey(
+        Child, on_delete=models.CASCADE, related_name="pictures")
     image = models.ImageField(upload_to='upload/pictures')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -78,14 +83,14 @@ class Food(models.Model):
 
 class MenuItem(models.Model):
     weekChoices = (
-            (Day.Week1.value, 'Week 1'),
-            (Day.Week2.value, 'Week 2'),
-            (Day.Week3.value, 'Week 3'),
-            (Day.Week4.value, 'Week 4'),
-            (Day.Week5.value, 'Week 5'),
-            (Day.Week6.value, 'Week 6'),
+        (Day.Week1.value, 'Week 1'),
+        (Day.Week2.value, 'Week 2'),
+        (Day.Week3.value, 'Week 3'),
+        (Day.Week4.value, 'Week 4'),
+        (Day.Week5.value, 'Week 5'),
+        (Day.Week6.value, 'Week 6'),
 
-        )
+    )
     dayNameChoices = (
         (Day.Mon.value, 'Monday'),
         (Day.Tue.value, 'Tuesday'),
@@ -104,7 +109,8 @@ class InjureRecord(models.Model):
     place = models.CharField(max_length=255)
     taken_time = models.DateTimeField()
     comment = models.TextField(null=True, blank=True)
-    dailyinfo = models.ForeignKey('ChildDailyInformation', on_delete=models.CASCADE, related_name='injures')
+    dailyinfo = models.ForeignKey(
+        'ChildDailyInformation', on_delete=models.CASCADE, related_name='injures')
 
 
 class ChildDailyInformation(models.Model):

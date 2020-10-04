@@ -1,12 +1,12 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, status
-from rest_framework import permissions
+from rest_framework import permissions, generics
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes, action
 from django.db.models import Q
 import json
 from anam_backend_main import mypermissions
-from .models import Child, SiblingGroup, Food, MenuItem, ChildDailyInformation
+from .models import Child, SiblingGroup, Food, MenuItem, ChildDailyInformation, Picture
 from .serializers import ChildSerializer, PictureSerializer, FoodSerializer, MenuItemSerializer, AddFoodSerializer
 from .serializers import ChildDailyInformationWriteSerializer, ChildDailyInformationReadSerializer
 from anam_backend_main.constants import Admin, Parent, Teacher
@@ -64,16 +64,21 @@ class ChildViewSet(viewsets.ModelViewSet):
     @action(detail=True)
     def pictures(self, request, pk=None):
         child = self.get_object()
-        child_serializer = ChildSerializer(child, context=self.get_serializer_context())
-        serializer = PictureSerializer(child.pictures, many=True, context=self.get_serializer_context())
+        child_serializer = ChildSerializer(
+            child, context=self.get_serializer_context())
+        serializer = PictureSerializer(
+            child.pictures, many=True, context=self.get_serializer_context())
         return Response({'child': child_serializer.data, 'pictures': serializer.data})
 
     @action(detail=True, url_path="latest_dailyinfo")
     def get_latest_dailyinformation(self, request, pk=None):
         child = self.get_object()
-        daily_info = ChildDailyInformation.objects.filter(child=child).order_by('-updated_at').first()
-        serializer = ChildDailyInformationReadSerializer(daily_info, context=self.get_serializer_context())
-        child_serializer = ChildSerializer(child, context=self.get_serializer_context())
+        daily_info = ChildDailyInformation.objects.filter(
+            child=child).order_by('-updated_at').first()
+        serializer = ChildDailyInformationReadSerializer(
+            daily_info, context=self.get_serializer_context())
+        child_serializer = ChildSerializer(
+            child, context=self.get_serializer_context())
         return Response({'dailyInfo': serializer.data, 'child': child_serializer.data})
 
     @action(detail=False, url_path="children")
@@ -81,7 +86,8 @@ class ChildViewSet(viewsets.ModelViewSet):
         user = request.user
         if user.role == Parent:
             child = user.child
-            serializer = ChildSerializer(child.sibling_group.childs, many=True, context=self.get_serializer_context())
+            serializer = ChildSerializer(
+                child.sibling_group.childs, many=True, context=self.get_serializer_context())
             return Response(serializer.data)
         return Response([])
 
@@ -111,13 +117,15 @@ def add_child_to_sibling_group(request, pk):
 class FoodViewSet(viewsets.ModelViewSet):
     queryset = Food.objects.all()
     serializer_class = FoodSerializer
-    permission_classes = (permissions.IsAuthenticated, mypermissions.IsAdminRole)
+    permission_classes = (permissions.IsAuthenticated,
+                          mypermissions.IsAdminRole)
 
 
 class MenuItemViewSet(viewsets.ModelViewSet):
     queryset = MenuItem.objects.all()
     serializer_class = MenuItemSerializer
-    permission_classes = (permissions.IsAuthenticated, mypermissions.IsAdminTeacherRole)
+    permission_classes = (permissions.IsAuthenticated,
+                          mypermissions.IsAdminTeacherRole)
     filterset_fields = ['weekName', 'dayName']
 
     def list(self, request, *args, **kwargs):
@@ -145,7 +153,8 @@ class MenuItemViewSet(viewsets.ModelViewSet):
             weekName = serializer.validated_data.pop('weekName')
             dayName = serializer.validated_data.pop('dayName')
             queryset = self.get_queryset()
-            menuItem = queryset.filter(dayName=dayName, weekName=weekName).order_by('-created_at').first()
+            menuItem = queryset.filter(
+                dayName=dayName, weekName=weekName).order_by('-created_at').first()
             if not menuItem:
                 menuItem = MenuItem(weekName=weekName, dayName=dayName)
                 menuItem.save()
@@ -164,7 +173,8 @@ class MenuItemViewSet(viewsets.ModelViewSet):
             weekName = serializer.validated_data.pop('weekName')
             dayName = serializer.validated_data.pop('dayName')
             queryset = self.get_queryset()
-            menuItem = queryset.filter(dayName=dayName, weekName=weekName).order_by('-created_at').first()
+            menuItem = queryset.filter(
+                dayName=dayName, weekName=weekName).order_by('-created_at').first()
             if not menuItem:
                 menuItem = MenuItem(weekName=weekName, dayName=dayName)
                 menuItem.save()
@@ -187,3 +197,18 @@ class ChildDailyInformationViewSet(viewsets.ModelViewSet):
             return ChildDailyInformationReadSerializer
         else:
             return ChildDailyInformationWriteSerializer
+
+
+class MyPictureViewSet(generics.ListAPIView, generics.DestroyAPIView):
+    serializer_class = PictureSerializer
+    permission_classes = (permissions.IsAuthenticated,
+                          mypermissions.IsParentRole)
+
+    def get_queryset(self):
+        user = self.request.user
+        children = user.child.sibling_group.childs.all()
+        q_object = Q()
+        for child in children:
+            q_object = q_object | Q(receiver=child)
+        print(Picture.objects.filter(q_object).order_by('-created_at').all())
+        return Picture.objects.filter(q_object).order_by('-created_at')
