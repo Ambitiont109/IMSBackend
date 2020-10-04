@@ -1,5 +1,5 @@
 from django.conf import settings
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework import permissions, status, viewsets, mixins
 from rest_framework.response import Response
 from anam_backend_main import mypermissions
@@ -7,7 +7,7 @@ from anam_backend_main.constants import Classroom, All, Admin
 import datetime
 from .models import SchoolDocument, MiniClub, ExchangeLibrary
 from .serializers import UploadSerializer, SchoolDocumentUploadSerializer, SchoolDocumentSerializer,\
-                        MiniClubSerializer, ExchangeLibrarySerializer
+    MiniClubSerializer, ExchangeLibrarySerializer, MarketingReadSerializer, MarketingWriteSerializer, RegisterChildMiniClubSerializer
 
 # Create your views here.
 
@@ -65,6 +65,20 @@ class MiniClubViewSet(viewsets.ModelViewSet):
             return Response("You don't have enough permission", status=status.HTTP_400_BAD_REQUEST)
         return super().destory(request, *args, **kwargs)
 
+    @action(detail=True, methods=['post'], url_path="register")
+    def addChildToClub(self, request, pk=None):
+        club = self.get_object()
+        serializer = RegisterChildMiniClubSerializer(
+            data=request.data, context=self.get_serializer_context())
+        if serializer.is_valid():
+            child = serializer.validated_data.get('child')
+            children = club.children.all()
+            if child not in children:
+                club.children.add(child)
+                club.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class ExchangeLibraryViewSet(viewsets.ModelViewSet):
     queryset = ExchangeLibrary.objects.all()
@@ -75,3 +89,15 @@ class ExchangeLibraryViewSet(viewsets.ModelViewSet):
         if request.user.role != Admin:
             return Response("You don't have enough permission", status=status.HTTP_400_BAD_REQUEST)
         return super().destory(request, *args, **kwargs)
+
+
+class MarketingViewSet(viewsets.ModelViewSet):
+    queryset = ExchangeLibrary.objects.all()
+    serializer_class = ExchangeLibrarySerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_serializer_class(self):
+        if self.action == 'list' or self.action == 'retrieve':
+            return MarketingReadSerializer
+        else:
+            return MarketingWriteSerializer

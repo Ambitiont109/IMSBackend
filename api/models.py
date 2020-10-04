@@ -41,3 +41,11 @@ class ExchangeLibrary(models.Model):
     status = models.CharField(max_length=255, choices=BookStatus.choices, default=BookStatus.PRESENT)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+
+class Marketing(models.Model):
+    question = models.CharField(max_length=255)
+    content = models.TextField()
+    poster = models.ForeignKey('UserApp.User', on_delete=models.SET_NULL, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
