@@ -6,7 +6,7 @@ app_name = 'AppointmentCenter'
 
 router = DefaultRouter()
 router.register('preset_record', views.PresetRecordViewSet, basename='presetRecords')
-router.register('preset_appointments', views.PresetAppointmentViewSet, basename='presetRecords')
+router.register('preset_appointments', views.PresetAppointmentViewSet, basename='presetAppointments')
 router.register('', views.AppointmentViewSet, basename='appointments')
 
 

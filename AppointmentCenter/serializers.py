@@ -45,7 +45,6 @@ class PresetRecordSerializer(serializers.ModelSerializer):
         model = PresetRecord
         fields = '__all__'
 
-
     def create(self, validated_data):
         presetItemsData = validated_data.pop('presetItems')
         presetRecord = PresetRecord.objects.create(**validated_data)
@@ -67,7 +66,6 @@ class PresetRecordSerializer(serializers.ModelSerializer):
     #                 for timerange_data in timeranges_data:
     #                     print(timerange_data)
     #     return super().update(instance, validated_data)
-
 
 
 class PresetAppointmentReadSerializer(serializers.ModelSerializer):

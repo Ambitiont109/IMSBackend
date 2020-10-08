@@ -37,7 +37,7 @@ class RegisterChildMiniClubSerializer(serializers.Serializer):
 
 
 class ExchangeLibrarySerializer(serializers.ModelSerializer):
-
+    child = SibilngChildSerializer(read_only=True)
     class Meta:
         model = ExchangeLibrary
         fields = '__all__'

@@ -32,3 +32,11 @@ class IsAdminTeacherRole(BasePermission):
     def has_permission(self, request, view):
         if request.user:
             return request.user.role == Teacher or request.user.role == Admin
+
+
+class IsAdminParentRole(BasePermission):
+    message = "You don't have enough permission"
+
+    def has_permission(self, request, view):
+        if request.user:
+            return request.user.role == Parent or request.user.role == Admin

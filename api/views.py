@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from anam_backend_main import mypermissions
 from anam_backend_main.constants import Classroom, All, Admin
 import datetime
-from .models import SchoolDocument, MiniClub, ExchangeLibrary
+from .models import SchoolDocument, MiniClub, ExchangeLibrary, BookStatus
 from .serializers import UploadSerializer, SchoolDocumentUploadSerializer, SchoolDocumentSerializer,\
     MiniClubSerializer, ExchangeLibrarySerializer, MarketingReadSerializer, MarketingWriteSerializer, RegisterChildMiniClubSerializer
 
@@ -89,6 +89,17 @@ class ExchangeLibraryViewSet(viewsets.ModelViewSet):
         if request.user.role != Admin:
             return Response("You don't have enough permission", status=status.HTTP_400_BAD_REQUEST)
         return super().destory(request, *args, **kwargs)
+
+    @action(detail=True, methods=['post'], url_path="rentBook")
+    def rent_book(self, request, pk=None):
+        book = self.get_object()
+        if book.status == BookStatus.RENTED:
+            return Response("Already Rented By Another User", status=status.HTTP_400_BAD_REQUEST)
+        book.status = BookStatus.RENTED
+        book.child = request.user.child
+        book.save()
+        serializer = ExchangeLibrarySerializer(book,context=self.get_serializer_context())
+        return Response(serializer.data)
 
 
 class MarketingViewSet(viewsets.ModelViewSet):
