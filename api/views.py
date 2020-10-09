@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from anam_backend_main import mypermissions
 from anam_backend_main.constants import Classroom, All, Admin
 import datetime
-from .models import SchoolDocument, MiniClub, ExchangeLibrary, BookStatus
+from .models import SchoolDocument, MiniClub, ExchangeLibrary, BookStatus, Marketing
 from .serializers import UploadSerializer, SchoolDocumentUploadSerializer, SchoolDocumentSerializer,\
     MiniClubSerializer, ExchangeLibrarySerializer, MarketingReadSerializer, MarketingWriteSerializer, RegisterChildMiniClubSerializer
 
@@ -98,13 +98,13 @@ class ExchangeLibraryViewSet(viewsets.ModelViewSet):
         book.status = BookStatus.RENTED
         book.child = request.user.child
         book.save()
-        serializer = ExchangeLibrarySerializer(book,context=self.get_serializer_context())
+        serializer = ExchangeLibrarySerializer(
+            book, context=self.get_serializer_context())
         return Response(serializer.data)
 
 
 class MarketingViewSet(viewsets.ModelViewSet):
-    queryset = ExchangeLibrary.objects.all()
-    serializer_class = ExchangeLibrarySerializer
+    queryset = Marketing.objects.order_by('-created_at').all()
     permission_classes = (permissions.IsAuthenticated,)
 
     def get_serializer_class(self):

@@ -53,8 +53,7 @@ class AppointmentViewSet(viewsets.ModelViewSet):
 class PresetRecordViewSet(viewsets.ModelViewSet):
     queryset = PresetRecord.objects.all()
     serializer_class = PresetRecordSerializer
-    permission_classes = (permissions.IsAuthenticated,
-                          mypermissions.IsAdminParentRole)
+    permission_classes = (permissions.IsAuthenticated,)
 
     @action(detail=False, url_path='current')
     def get_current_record(self, request, userPk=None):
@@ -134,6 +133,7 @@ class PresetAppointmentViewSet(viewsets.ModelViewSet):
         req = self.request
         is_current_preset = req.query_params.get('current_preset')
         queryset = PresetAppointment.objects.none()
+        print(is_current_preset)
         if is_current_preset == 'true':
 
             currentRecord = PresetRecord.objects.filter(
@@ -155,6 +155,7 @@ class PresetAppointmentViewSet(viewsets.ModelViewSet):
             q_object = Q()
             for name in classnames:
                 q_object = q_object | Q(className=name)
+            print( PresetAppointment.objects.filter(q_object))
             return PresetAppointment.objects.filter(q_object)
         else:
             return queryset
