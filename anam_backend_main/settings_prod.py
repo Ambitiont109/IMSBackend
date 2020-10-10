@@ -1,5 +1,5 @@
 #DEBUG = False
-ALLOWED_HOSTS = ['136.224.87', 'standomsports.com']
+ALLOWED_HOSTS = ['3.136.224.87', 'standomsports.com']
 # ALLOWED_HOSTS = ['192.232.213.37', 'standomsports.com']
 STATIC_URL = '/static/'
 STATIC_ROOT = '/var/www/html/standom/static'
