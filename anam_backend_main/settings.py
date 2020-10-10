@@ -146,7 +146,7 @@ CORS_ALLOW_HEADERS = default_headers + (
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
-Env = os.environ.get('DJANOGO_ENV', 'local')
+Env = os.environ.get('DJANGO_ENV', 'local')
 print(Env)
 if Env == 'local':
     from .settings_local import *
