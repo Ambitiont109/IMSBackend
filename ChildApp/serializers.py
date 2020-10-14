@@ -65,24 +65,18 @@ class ChildSerializer(WritableNestedModelSerializer):
             return []
 
     def create(self, validated_data):
-        injures_data = validated_data.pop('injures')
-        child_daily_info = ChildDailyInformation.objects.create(**validated_data)
-        for injure_data in injures_data:
-            InjureRecord.objects.create(dailyinfo=child_daily_info, **injure_data)
-        return child_daily_info
-
-
-    def create(self, validated_data):
         user = self.context['request'].user
         sibling_group = None
         if user and user.child:
             sibling_group = user.child.sibling_group
         if not sibling_group:
-            sibling_group = SiblingGroup.objects.filter(numberOfSiblings=0).first()
+            sibling_group = SiblingGroup.objects.filter(
+                numberOfSiblings=0).first()
         if not sibling_group:
-            sibling_group = SiblingGroup.objects.create(numberOfSiblings=1)
-        parent = generate_random_user()
-
+            sibling_group = SiblingGroup.objects.create()
+        parent = user
+        if user.child:
+            parent = generate_random_user()
 
         validated_data['sibling_group'] = sibling_group
         validated_data['parent'] = parent
@@ -136,7 +130,6 @@ class InjureRecordSerializer(serializers.ModelSerializer):
         read_only_fields = ('dailyinfo', )
 
 
-
 class ChildDailyInformationWriteSerializer(serializers.ModelSerializer):
     injures = InjureRecordSerializer(many=True)
 
@@ -146,9 +139,11 @@ class ChildDailyInformationWriteSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         injures_data = validated_data.pop('injures')
-        child_daily_info = ChildDailyInformation.objects.create(**validated_data)
+        child_daily_info = ChildDailyInformation.objects.create(
+            **validated_data)
         for injure_data in injures_data:
-            InjureRecord.objects.create(dailyinfo=child_daily_info, **injure_data)
+            InjureRecord.objects.create(
+                dailyinfo=child_daily_info, **injure_data)
         return child_daily_info
 
     def update(self, instance, validated_data):
@@ -158,18 +153,22 @@ class ChildDailyInformationWriteSerializer(serializers.ModelSerializer):
         injures = instance.injures.all()
         for index in range(0, len(injures)):
             if index < len(injures_data):
-                serializer = InjureRecordSerializer(instance=injures[index], data=injures_data[index])
+                serializer = InjureRecordSerializer(
+                    instance=injures[index], data=injures_data[index])
                 if serializer.is_valid():
                     serializer.save()
             if index >= len(injures_data):
                 injures[index].delete()
 
         for index in range(0, len(injures_data) - len(injures)):
-            InjureRecord.objects.create(dailyinfo=instance, **injures_data[index + len(injures)])
+            InjureRecord.objects.create(
+                dailyinfo=instance, **injures_data[index + len(injures)])
 
-        child_daily_info = ChildDailyInformation.objects.create(**validated_data)
+        child_daily_info = ChildDailyInformation.objects.create(
+            **validated_data)
         for injure_data in injures_data:
-            InjureRecord.objects.create(dailyinfo=child_daily_info, **injure_data)
+            InjureRecord.objects.create(
+                dailyinfo=child_daily_info, **injure_data)
         return child_daily_info
 
 
