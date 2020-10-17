@@ -67,7 +67,11 @@ class ChildSerializer(WritableNestedModelSerializer):
     def create(self, validated_data):
         user = self.context['request'].user
         sibling_group = None
-        if user and user.child:
+        try:
+            user_child = user.child
+        except Exception:
+            user_child = None
+        if user_child:
             sibling_group = user.child.sibling_group
         if not sibling_group:
             sibling_group = SiblingGroup.objects.filter(
@@ -75,7 +79,7 @@ class ChildSerializer(WritableNestedModelSerializer):
         if not sibling_group:
             sibling_group = SiblingGroup.objects.create()
         parent = user
-        if user.child:
+        if user.role != Parent:
             parent = generate_random_user()
 
         validated_data['sibling_group'] = sibling_group
