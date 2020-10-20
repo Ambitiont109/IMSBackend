@@ -19,9 +19,12 @@ class Message(models.Model):
     child = models.ForeignKey('ChildApp.Child', on_delete=models.CASCADE, null=True, blank=True)
     sender = models.ForeignKey('UserApp.User', on_delete=models.CASCADE, related_name='+')
     receiver = models.ForeignKey('UserApp.User', on_delete=models.CASCADE, related_name='+')
+    is_read = models.BooleanField(default=False)
     content = models.TextField()
     msgType = models.CharField(max_length=255, choices=MessageTypeSelectChoice,
                                default=MessageType.Normal.value)
     headerMessage = models.ForeignKey('Message', on_delete=models.CASCADE, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+

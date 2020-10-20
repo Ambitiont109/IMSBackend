@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'channels',
     'rest_framework',
     'rest_framework.authtoken',
     'corsheaders',
@@ -47,6 +48,7 @@ INSTALLED_APPS = [
     'MessageApp',
     'ChildApp',
     'AppointmentCenter',
+    'NotificationApp',
     'api',
 ]
 
@@ -79,8 +81,15 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'anam_backend_main.wsgi.application'
+# WSGI_APPLICATION = 'anam_backend_main.wsgi.application'
 
+# Channels
+ASGI_APPLICATION = 'anam_backend_main.routing.application'
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    },
+}
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases

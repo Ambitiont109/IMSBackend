@@ -20,6 +20,8 @@ urlpatterns = [
     path('child/', include('ChildApp.urls')),
     path('messages/', include('MessageApp.urls')),
     path('appointments/', include('AppointmentCenter.urls')),
+    path('notification/', include('NotificationApp.urls')),
     path('uploadpicture/', views.uploadPicture),
     path('upload/document/<slug:documentFor>/', views.uploadSchoolDocument)
+
 ]

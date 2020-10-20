@@ -10,6 +10,7 @@ from .models import Child, SiblingGroup, Food, MenuItem, ChildDailyInformation, 
 from .serializers import ChildSerializer, PictureSerializer, FoodSerializer, MenuItemSerializer, AddFoodSerializer
 from .serializers import ChildDailyInformationWriteSerializer, ChildDailyInformationReadSerializer
 from anam_backend_main.constants import Admin, Parent, Teacher
+from NotificationApp import utils as notfication_utils
 # Create your views here.
 
 
@@ -40,14 +41,17 @@ class ChildViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'])
     def remove_from_sibling(self, request, pk=None):
         child = self.get_object()
+        prev_group_id = child.sibling_group.id
         sibling_group = SiblingGroup.objects.filter(numberOfSiblings=0).first()
         if not sibling_group:
             sibling_group = SiblingGroup()
             sibling_group.save()
         sibling_group.numberOfSiblings -= 1
         sibling_group.save()
+
         child.sibling_group = sibling_group
         child.save()
+        notfication_utils.change_parent_sibling_group(prev_group_id, child.parent)
         return Response(sibling_group.pk)
 
     @action(detail=True, methods=['post'])
@@ -108,9 +112,12 @@ def add_child_to_sibling_group(request, pk):
         for child in children:
             if(child.sibling_group.id != sibling_group.id):
                 sibling_group.numberOfSiblings += 1
+            prev_group_id = child.sibling_group.id
             child.sibling_group = sibling_group
             child.save()
+            notfication_utils.change_parent_sibling_group(prev_group_id, child.parent)
         sibling_group.save()
+
     return Response('success')
 
 

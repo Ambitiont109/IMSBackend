@@ -8,7 +8,7 @@ import datetime
 from .models import SchoolDocument, MiniClub, ExchangeLibrary, BookStatus, Marketing
 from .serializers import UploadSerializer, SchoolDocumentUploadSerializer, SchoolDocumentSerializer,\
     MiniClubSerializer, ExchangeLibrarySerializer, MarketingReadSerializer, MarketingWriteSerializer, RegisterChildMiniClubSerializer
-
+from NotificationApp.utils import send_broadcast
 # Create your views here.
 
 
@@ -78,6 +78,11 @@ class MiniClubViewSet(viewsets.ModelViewSet):
                 club.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def create(self, request, *args, **kwargs):
+        response = super().create(request, *args, **kwargs)
+        send_broadcast()
+        return response
 
 
 class ExchangeLibraryViewSet(viewsets.ModelViewSet):

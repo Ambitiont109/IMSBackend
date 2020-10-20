@@ -9,9 +9,18 @@ from .models import Message, AttachedFile
 from .serializers import AttachedFileSerializer, MessageWriteSerializer, MessageReadSerializer, MessageComposeSerializer
 
 from anam_backend_main.constants import Admin, Teacher, Parent
+from NotificationApp import utils as notfication_utils
 # Create your views here.
 
-
+def check_user_unreadness(user):
+    if user.role == Admin or user.role == Teacher:
+        headerMsgs = Message.objects.filter(receiver=user, headerMessage__isnull=True, is_read=False).all()
+    if user.role == Parent:
+        headerMsgs = Message.objects.filter(
+            child__sibling_group=user.child.sibling_group).filter(headerMessage__isnull=True, is_read=False, receiver__role=Parent).all()
+    if len(headerMsgs) > 0:
+        return True
+    return False
 class MessageViewSet(viewsets.ModelViewSet):
     queryset = Message.objects.all()
     serializer_class = MessageWriteSerializer
@@ -25,7 +34,9 @@ class MessageViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         if self.request.user.role == Admin:
-            return Message.objects.filter(Q(sender__role=Admin) | Q(receiver__role=Admin)).order_by('created_at')
+            # return Message.objects.filter(Q(sender__role=Admin) | Q(receiver__role=Admin)).order_by('created_at')
+            return Message.objects.filter(Q(sender=self.request.user) | Q(receiver=self.request.user))\
+                .order_by('created_at')
         if self.request.user.role == Teacher:
             return Message.objects.filter(Q(sender=self.request.user) | Q(receiver=self.request.user))\
                 .order_by('created_at')
@@ -36,6 +47,24 @@ class MessageViewSet(viewsets.ModelViewSet):
                 q_object = q_object | Q(child=child)
             print(q_object)
             return Message.objects.filter(q_object).order_by('created_at')
+
+    def perform_create(self, serializer):
+        message = serializer.save()
+        if message.headerMessage:
+            message.headerMessage.is_read = False
+            message.headerMessage.save()
+        notfication_utils.message_create_notification(message)
+
+    def partial_update(self, request, *args, **kwargs):
+        response = super().partial_update(request, *args, **kwargs)
+        if 'is_read' in request.data:
+            message = self.get_object()
+            if message.headerMessage:
+                message.headerMessage.is_read = True
+                message.headerMessage.save()
+            if request.data['is_read'] is True:
+                notfication_utils.message_read_notification(self.request.user)
+        return response
 
     @action(detail=False)
     def getHeaderMessages(self, request):
@@ -58,13 +87,16 @@ class MessageViewSet(viewsets.ModelViewSet):
     @action(detail=True, url_path='linkedMessage')
     def getLinkedMesssage(self, request, pk=None):
         headerMessagePk = pk
-        print(headerMessagePk)
         queryset = self.get_queryset()
-        queryset = queryset.filter(Q(headerMessage__id=headerMessagePk) | Q(
+        result = queryset.filter(Q(headerMessage__id=headerMessagePk) | Q(
             pk=headerMessagePk)).order_by('created_at')
         serializer = MessageReadSerializer(
-            queryset, many=True, context=self.get_serializer_context())
+            result, many=True, context=self.get_serializer_context())
         return Response(serializer.data)
+
+    @action(detail=False, url_path='check_unreadness')
+    def check_unreadness(self, request):
+        return Response(check_user_unreadness(self.request.user))
 
 
 class AttachFileUploadView(generics.CreateAPIView):
@@ -75,6 +107,10 @@ class AttachFileUploadView(generics.CreateAPIView):
 class MessageComposeView(generics.CreateAPIView):
     serializer_class = MessageComposeSerializer
     permission_classes = (permissions.IsAuthenticated, )
+
+    def perform_create(self, serializer):
+        message = serializer.save()
+        notfication_utils.message_create_notification(message)
 
     def post(self, request, *args, **kwargs):
         self.create(request, *args, **kwargs)
@@ -102,7 +138,11 @@ class MessageReplyView(generics.CreateAPIView):
     serializer_class = MessageComposeSerializer
     permission_classes = (permissions.IsAuthenticated, )
 
-    def post(self, request, headerpk=None,*args, **kwargs):
+    def perform_create(self, serializer):
+        message = serializer.save()
+        notfication_utils.message_create_notification(message)
+
+    def post(self, request, headerpk=None, *args, **kwargs):
         self.create(request, *args, **kwargs)
         queryset = Message.objects.all()
         queryset = queryset.filter(Q(headerMessage__id=headerpk) | Q(

@@ -1,4 +1,6 @@
 import enum
+from django.db import models
+ 
 Parent = 'Parent'
 Teacher = 'Teacher'
 Admin = 'Admin'
@@ -34,3 +36,8 @@ class Day(enum.Enum):
     Wed = 'Wednesday'
     Thr = 'Thursday'
     Fri = 'Friday'
+
+
+class ReadStatus(models.TextChoices):
+    READ = "read"
+    UNREAD = "unread"
