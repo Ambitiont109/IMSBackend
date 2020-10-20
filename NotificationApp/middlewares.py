@@ -1,6 +1,7 @@
 from channels.db import database_sync_to_async
 from channels.sessions import CookieMiddleware, SessionMiddleware
 from django.contrib.auth.models import AnonymousUser
+from django.conf import settings
 from rest_framework.authtoken.models import Token
 
 
@@ -45,6 +46,8 @@ class TokenAuthMiddlewareInstance:
         # Look up user from query string (you should also do things like
         # checking if it is a valid user ID, or if scope["user"] is already
         # populated).
+        if settings.DEBUG:
+            print(self.scope)
         if 'usertoken' in self.scope["cookies"]:
             self.scope['user'] = await get_user(self.scope["cookies"])
         else:
