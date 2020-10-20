@@ -14,7 +14,7 @@ from NotificationApp import utils as notfication_utils
 
 def check_user_unreadness(user):
     if user.role == Admin or user.role == Teacher:
-        headerMsgs = Message.objects.filter(receiver=user, headerMessage__isnull=True, is_read=False).all()
+        headerMsgs = Message.objects.filter(lastMessage__receiver=user, lastMessage__is_read=False).all()
     if user.role == Parent:
         headerMsgs = Message.objects.filter(
             child__sibling_group=user.child.sibling_group).filter(headerMessage__isnull=True, is_read=False, receiver__role=Parent).all()
@@ -51,7 +51,7 @@ class MessageViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         message = serializer.save()
         if message.headerMessage:
-            message.headerMessage.is_read = False
+            message.headerMessage.las = False
             message.headerMessage.save()
         notfication_utils.message_create_notification(message)
 
@@ -108,9 +108,6 @@ class MessageComposeView(generics.CreateAPIView):
     serializer_class = MessageComposeSerializer
     permission_classes = (permissions.IsAuthenticated, )
 
-    def perform_create(self, serializer):
-        message = serializer.save()
-        notfication_utils.message_create_notification(message)
 
     def post(self, request, *args, **kwargs):
         self.create(request, *args, **kwargs)
@@ -138,9 +135,6 @@ class MessageReplyView(generics.CreateAPIView):
     serializer_class = MessageComposeSerializer
     permission_classes = (permissions.IsAuthenticated, )
 
-    def perform_create(self, serializer):
-        message = serializer.save()
-        notfication_utils.message_create_notification(message)
 
     def post(self, request, headerpk=None, *args, **kwargs):
         self.create(request, *args, **kwargs)

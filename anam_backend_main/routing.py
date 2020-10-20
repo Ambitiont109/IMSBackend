@@ -17,7 +17,7 @@ application = ProtocolTypeRouter({
     # )),
     "websocket": TokenMiddlewareStack(
         URLRouter([
-            url(r"^ws/notification/$", NotificationConsumer),
+            url(r"^ws/notification$", NotificationConsumer),
         ])
     ),
 })

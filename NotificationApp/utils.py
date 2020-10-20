@@ -8,7 +8,7 @@ from MessageApp.views import check_user_unreadness
 
 def get_user_sibling_group_name(user):
     if user.child:
-        return 'sibling_group_' + str(user.child.SiblingGroup.id)
+        return 'sibling_group_' + str(user.child.sibling_group.id)
     return 'anonymous'
 
 

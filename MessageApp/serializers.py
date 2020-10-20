@@ -5,7 +5,7 @@ from ChildApp.models import Child
 from UserApp.serializers import UserSerializer
 from ChildApp.serializers import ChildSerializer
 from anam_backend_main.myserializerfields import Base64ImageField
-
+from NotificationApp import utils as notfication_utils
 
 class AttachedFileSerializer(serializers.ModelSerializer):
 
@@ -24,6 +24,12 @@ class MessageReadSerializer(serializers.ModelSerializer):
         model = Message
         fields = '__all__'
 
+def resolveHeaderLastMessage(msg):
+    if msg.headerMessage:
+        msg.headerMessage.lastMessage = msg
+    else:
+        msg.lastMessage = msg
+    msg.save()
 
 class MessageWriteSerializer(serializers.ModelSerializer):
     # attachedFiles = serializers.PrimaryKeyRelatedField(many=True)
@@ -41,11 +47,14 @@ class MessageWriteSerializer(serializers.ModelSerializer):
         if('attachedFiles' in validated_data):
             attachedFiles = validated_data.pop('attachedFiles')
         message = super().create(validated_data)
+        resolveHeaderLastMessage(message)
+        notfication_utils.message_create_notification(message)
         for file in attachedFiles:
             try:
                 message.attachedFiles.add(file)
             except Exception:
                 pass
+        
         return message
 
 
@@ -86,5 +95,7 @@ class MessageComposeSerializer(serializers.ModelSerializer):
             msg = Message.objects.create(**validated_data, receiver=receiver)
             msg.attachedFiles.set(fileList)
             msg.save()
+            resolveHeaderLastMessage(msg)
+            notfication_utils.message_create_notification(msg)
         return msg
 

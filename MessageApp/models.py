@@ -23,7 +23,8 @@ class Message(models.Model):
     content = models.TextField()
     msgType = models.CharField(max_length=255, choices=MessageTypeSelectChoice,
                                default=MessageType.Normal.value)
-    headerMessage = models.ForeignKey('Message', on_delete=models.CASCADE, null=True, blank=True)
+    headerMessage = models.ForeignKey('Message', on_delete=models.CASCADE, null=True, blank=True, related_name='+')
+    lastMessage = models.ForeignKey('Message', on_delete=models.CASCADE, null=True, blank=True, related_name='+')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

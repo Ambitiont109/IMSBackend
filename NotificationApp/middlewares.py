@@ -45,8 +45,11 @@ class TokenAuthMiddlewareInstance:
         # Look up user from query string (you should also do things like
         # checking if it is a valid user ID, or if scope["user"] is already
         # populated).
-
-        self.scope['user'] = await get_user(self.scope["cookies"])
+        if 'usertoken' in self.scope["cookies"]:
+            self.scope['user'] = await get_user(self.scope["cookies"])
+        else:
+            query_string = self.scope["query_string"].decode('utf-8')
+            self.scope['user'] = await get_user({'usertoken':query_string})
 
         # Instantiate our inner application
         inner = self.inner(self.scope)
