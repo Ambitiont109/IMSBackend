@@ -81,7 +81,7 @@ TEMPLATES = [
     },
 ]
 
-# WSGI_APPLICATION = 'anam_backend_main.wsgi.application'
+WSGI_APPLICATION = 'anam_backend_main.wsgi.application'
 
 # Channels
 ASGI_APPLICATION = 'anam_backend_main.routing.application'
