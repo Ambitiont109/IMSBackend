@@ -84,7 +84,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'anam_backend_main.wsgi.application'
 
 # Channels
-ASGI_APPLICATION = 'anam_backend_main.routing.application'
+# ASGI_APPLICATION = 'anam_backend_main.routing.application'
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels.layers.InMemoryChannelLayer',
