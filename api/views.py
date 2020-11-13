@@ -86,7 +86,7 @@ class MiniClubViewSet(viewsets.ModelViewSet):
 
 
 class ExchangeLibraryViewSet(viewsets.ModelViewSet):
-    queryset = ExchangeLibrary.objects.all()
+    queryset = ExchangeLibrary.objects.order_by('title').all()
     serializer_class = ExchangeLibrarySerializer
     permission_classes = (permissions.IsAuthenticated,)
 

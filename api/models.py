@@ -39,6 +39,7 @@ class ExchangeLibrary(models.Model):
     child = models.ForeignKey('ChildApp.Child', blank=True, null=True, on_delete=models.SET_NULL)
     comment = models.TextField(blank=True, null=True)
     status = models.CharField(max_length=255, choices=BookStatus.choices, default=BookStatus.PRESENT)
+    donator = models.CharField(max_length=255, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
