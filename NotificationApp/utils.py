@@ -4,6 +4,7 @@ from asgiref.sync import async_to_sync
 from anam_backend_main.constants import Parent, Teacher, Admin
 from .models import Notification, NotificationStatusRecord, NotificationVerb
 from MessageApp.views import check_user_unreadness
+from .serializers import NotificationReadSerializer, NotificationStatusRecordSerializer
 
 
 def get_user_sibling_group_name(user):
@@ -57,6 +58,15 @@ def message_create_notification(message):
         "receiver": message.receiver.id
     }
     send_to_user_channel(message.receiver, channel_message)
+
+
+def create_notification_record(receiver, notification):
+    serializer = NotificationReadSerializer(notification)
+    channel_message = {
+        "data": serializer.data,
+        "receiver": receiver.id
+    }
+    send_to_user_channel(receiver, channel_message)
 
 
 def message_read_notification(user):

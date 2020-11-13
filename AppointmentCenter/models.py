@@ -43,6 +43,7 @@ class Appointment(models.Model):
     presetType = models.CharField(
         max_length=255, choices=PresetType.choices, blank=True, null=True)
     comment = models.TextField(blank=True, null=True)
+    addtionalDetail = models.TextField(blank=True, null=True)
     status = models.CharField(
         max_length=255, choices=AppointmentStatus.choices, default=AppointmentStatus.PENDING)
 
