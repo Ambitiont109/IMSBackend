@@ -27,6 +27,7 @@ class SchoolDocumentUploadSerializer(serializers.ModelSerializer):
 
 class MiniClubSerializer(serializers.ModelSerializer):
     children = SibilngChildSerializer(many=True, read_only=True)
+
     class Meta:
         model = MiniClub
         fields = '__all__'
@@ -36,8 +37,12 @@ class RegisterChildMiniClubSerializer(serializers.Serializer):
     child = serializers.PrimaryKeyRelatedField(queryset=Child.objects.all())
 
 
+UnRegisterChildMiniClubSerializer = RegisterChildMiniClubSerializer
+
+
 class ExchangeLibrarySerializer(serializers.ModelSerializer):
     child = SibilngChildSerializer(read_only=True)
+
     class Meta:
         model = ExchangeLibrary
         fields = '__all__'
