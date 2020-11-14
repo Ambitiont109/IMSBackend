@@ -46,15 +46,16 @@ class Child(models.Model):
     address = models.CharField(max_length=255)
     nameOfClass = models.CharField(max_length=255, choices=nameOfClassSelect,
                                    default=Baobab)
-    firstNameOfMother = models.CharField(max_length=255)
-    lastNameOfMother = models.CharField(max_length=255)
-    phoneOfMother = models.CharField(max_length=255)
-    emailOfMother = models.EmailField()
-    firstNameOfFather = models.CharField(max_length=255)
-    lastNameOfFather = models.CharField(max_length=255)
-    phoneOfFather = models.CharField(max_length=255)
-    emailOfFather = models.EmailField()
-
+    firstNameOfMother = models.CharField(max_length=255, null=True, blank=True)
+    lastNameOfMother = models.CharField(max_length=255, null=True, blank=True)
+    phoneOfMother = models.CharField(max_length=255, null=True, blank=True)
+    emailOfMother = models.EmailField(null=True, blank=True)
+    firstNameOfFather = models.CharField(max_length=255, null=True, blank=True)
+    lastNameOfFather = models.CharField(max_length=255, null=True, blank=True)
+    phoneOfFather = models.CharField(max_length=255, null=True, blank=True)
+    emailOfFather = models.EmailField(null=True, blank=True)
+    isFatherNone = models.BooleanField(default=True)
+    isMotherNone = models.BooleanField(default=True)
     # Emergency Contact
     # Foreignkey in Contact
 

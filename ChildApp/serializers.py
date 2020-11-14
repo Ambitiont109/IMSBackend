@@ -78,10 +78,8 @@ class ChildSerializer(WritableNestedModelSerializer):
                 numberOfSiblings=0).first()
         if not sibling_group:
             sibling_group = SiblingGroup.objects.create()
-        parent = user
-        if user.role != Parent:
-            parent = generate_random_user()
-
+        # parent = user
+        parent = generate_random_user()
         validated_data['sibling_group'] = sibling_group
         validated_data['parent'] = parent
         child = super(ChildSerializer, self).create(validated_data)
